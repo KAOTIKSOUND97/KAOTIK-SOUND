@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Canciones Producidas v5.0</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --background-color: #f5f7fa;
+            --text-color: #34495e;
+            --border-color: #bdc3c7;
+            --hover-color: #2980b9;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --success-color: #2ecc71;
+            --dark-background-color: #2c3e50;
+            --dark-text-color: #ecf0f1;
+        }
+
+        [data-theme="dark"] {
+            --background-color: var(--dark-background-color);
+            --text-color: var(--dark-text-color);
+            --border-color: var(--dark-text-color);
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 10px; /* Ajustar el padding para pantallas pequeñas */
+            margin-bottom: 80px;
+        }
+
+        .header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 2em; /* Reducir el tamaño de la fuente en pantallas pequeñas */
+        }
+
+        .theme-switch {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+
+        .theme-switch label {
+            margin-right: 10px;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .tab-button {
+            background-color: var(--secondary-color);
+            border: none;
+            color: white;
+            padding: 8px 16px; /* Ajustar el padding de los botones de pestaña */
+            margin: 0 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .tab-button:hover {
+            background-color: #27ae60;
+        }
+
+        .content {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px; /* Ajustar el padding del contenido */
+            margin-top: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: var(--hover-color);
+        }
+
+        .notification {
+            background-color: var(--success-color);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: none;
+            z-index: 1000;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th, .table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .table th {
+            background-color: var(--primary-color);
+            color: white;
+            cursor: pointer;
+        }
+
+        .table tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .action-buttons button {
+            margin-right: 5px;
+        }
+
+        .filter-section {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            flex-direction: column; /* Cambiar a columna para mejor visualización */
+        }
+
+        .additional-fields {
+            display: none;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 10px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .status-label {
+            padding: 5px 10px;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        .status-BEAT { background-color: #9b59b6; }
+        .status-REFERENCE { background-color: #3498db; }
+        .status-GRABANDO { background-color: #e74c3c; }
+        .status-DEMO { background-color: #f39c12; }
+        .status-MIX { background-color: #1abc9c; }
+        .status-FINALMIX { background-color: #34495e; }
+        .status-MASTER { background-color: #2980b9; }
+        .status-FINISHED { background-color: #2ecc71; }
+
+        .info-box {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #sync-status {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px;
+            background-color: var(--info-color);
+            color: white;
+            border-radius: 5px;
+            display: none;
+        }
+
+        #player-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: var(--primary-color);
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        #player-container.status-BEAT { background-color: #9b59b6; }
+        #player-container.status-REFERENCE { background-color: #3498db; }
+        #player-container.status-GRABANDO { background-color: #e74c3c; }
+        #player-container.status-DEMO { background-color: #f39c12; }
+        #player-container.status-MIX { background-color: #1abc9c; }
+        #player-container.status-FINALMIX { background-color: #34495e; }
+        #player-container.status-MASTER { background-color: #2980b9; }
+        #player-container.status-FINISHED { background-color: #2ecc71; }
+
+        #main-player {
+            width: 70%;
+            max-width: 500px;
+        }
+
+        #now-playing {
+            color: white;
+            margin-left: 20px;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 10px; }
+            .header h1 { font-size: 2em; }
+            .tab-button { padding: 8px 16px; }
+            .content { padding: 20px; }
+            .filter-section { flex-direction: column; }
+        }
+
+        /* Asegurarse de que las imágenes no excedan el ancho de la pantalla */
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>Gestión de Canciones Producidas v5.0</h1>
+    <div class="theme-switch">
+        <label for="theme-select">Tema:</label>
+        <select id="theme-select">
+            <option value="default">Claro</option>
+            <option value="dark">Oscuro</option>
+        </select>
+    </div>
+    <button class="btn" onclick="saveToFile()">Guardar Base de Datos</button>
+    <button class="btn" onclick="document.getElementById('file-input').click()">Cargar Base de Datos</button>
+    <input type="file" id="file-input" style="display:none" onchange="loadFromFile(event)">
+</div>
+
+<div class="container">
+    <div class="tabs">
+        <button class="tab-button" onclick="showSection('registro')"><i class="fas fa-plus"></i> Registro</button>
+        <button class="tab-button" onclick="showSection('base-datos')"><i class="fas fa-database"></i> Base de Datos</button>
+    </div>
+
+    <div id="registro" class="content">
+        <h2>Registro de Canciones Producidas</h2>
+        <form id="song-form" onsubmit="saveSong(event);">
+            <div class="form-group">
+                <label for="titulo">Título de la Canción</label>
+                <input type="text" id="titulo" name="titulo" class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label for="artista">Artista(s)</label>
+                <input type="text" id="artista" name="artista" class="form-control">
+            </div>
+
+            <button type="button" class="btn" onclick="toggleAdditionalFields()">
+                <i class="fas fa-chevron-down"></i> Mostrar/Ocultar Campos Opcionales
+            </button>
+
+            <div class="additional-fields">
+                <div class="form-group">
+                    <label for="productor">Productor</label>
+                    <select id="productor" name="productor" class="form-control">
+                        <option value="K.FABRICE">K.FABRICE</option>
+                        <option value="K.FABRICE & STOMACH ACHE">K.FABRICE & STOMACH ACHE</option>
+                        <option value="STOMACH ACHE">STOMACH ACHE</option>
+                        <option value="ALIMANHA">ALIMANHA</option>
+                        <option value="K.FABRICE & ALIMANHA">K.FABRICE & ALIMANHA</option>
+                        <option value="K.FABRICE & OSCAR">K.FABRICE & OSCAR</option>
+                        <option value="K.FABRICE & ALEXANDER">K.FABRICE & ALEXANDER</option>
+                        <option value="otro">Otro (especificar)</option>
+                    </select>
+                    <input type="text" id="otro-productor" name="otro-productor" class="form-control" style="display: none;" placeholder="Especificar productor">
+                </div>
+
+                <div class="form-group">
+                    <label for="archivo">Archivo de Audio</label>
+                    <input type="file" id="archivo" name="archivo" accept="audio/*" class="form-control" onchange="extractFilePath(this)">
+                </div>
+
+                <div class="form-group">
+                    <label for="ruta-archivo">Ruta del Archivo de Audio</label>
+                    <input type="text" id="ruta-archivo" name="ruta-archivo" class="form-control" placeholder="Ingrese la ruta del archivo de audio">
+                </div>
+
+                <div class="form-group">
+                    <label for="comentarios">Comentarios</label>
+                    <textarea id="comentarios" name="comentarios" rows="4" class="form-control"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="creditos">Créditos de Producción</label>
+                    <textarea id="creditos" name="creditos" rows="4" class="form-control"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="estado">Estado del Proyecto</label>
+                    <select id="estado" name="estado" class="form-control">
+                        <option value="BEAT">BEAT</option>
+                        <option value="REFERENCE">REFERENCE</option>
+                        <option value="GRABANDO">GRABANDO</option>
+                        <option value="DEMO">DEMO</option>
+                        <option value="MIX">MIX</option>
+                        <option value="FINALMIX">FINALMIX</option>
+                        <option value="MASTER">MASTER</option>
+                        <option value="FINISHED">FINISHED</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="etiqueta">Etiqueta</label>
+                    <input type="text" id="etiqueta" name="etiqueta" class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label for="caratula">Carátula del Álbum</label>
+                    <input type="file" id="caratula" name="caratula" accept="image/*" class="form-control" onchange="previewCaratula(event)">
+                </div>
+                <img id="caratula-preview" style="display:none; width: 100px; height: 100px; margin-top: 10px;" />
+            </div>
+
+            <button type="submit" class="btn"><i class="fas fa-save"></i> Guardar</button>
+        </form>
+    </div>
+
+    <div id="base-datos" class="content" style="display: none;">
+        <h2>Lista de Canciones</h2>
+        <div class="info-box" id="song-count">Número de canciones registradas: 0</div>
+        <div class="filter-section">
+            <input type="text" id="artist-filter" class="form-control" placeholder="Filtrar por Artista">
+            <input type="text" id="title-filter" class="form-control" placeholder="Filtrar por Título">
+            <select id="genre-filter" class="form-control">
+                <option value="">Todos los géneros</option>
+            </select>
+            <select id="status-filter" class="form-control">
+                <option value="">Todos los estados</option>
+                <option value="BEAT">BEAT</option>
+                <option value="REFERENCE">REFERENCE</option>
+                <option value="GRABANDO">GRABANDO</option>
+                <option value="DEMO">DEMO</option>
+                <option value="MIX">MIX</option>
+                <option value="FINALMIX">FINALMIX</option>
+                <option value="MASTER">MASTER</option>
+                <option value="FINISHED">FINISHED</option>
+            </select>
+            <button class="btn" onclick="sortSongs()"><i class="fas fa-sort"></i> Ordenar</button>
+        </div>
+        <table id="songs-table" class="table">
+            <thead>
+                <tr>
+                    <th onclick="sortTable(0)">Título</th>
+                    <th onclick="sortTable(1)">Artista(s)</th>
+                    <th>Género</th>
+                    <th>Duración</th>
+                    <th>Estado</th>
+                    <th>Productor</th>
+                    <th>Reproducir</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Aquí se agregarán las filas de las canciones registradas -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="notification" id="notification"></div>
+<div id="sync-status"></div>
+
+<div id="player-container">
+    <audio id="main-player" controls></audio>
+    <p id="now-playing"></p>
+</div>
+
+<div id="editModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Editar Canción</h2>
+        <form id="edit-form">
+            <!-- Los campos del formulario se generarán dinámicamente -->
+        </form>
+    </div>
+</div>
+
+<script>
+    let genres = ["Urbana", "Pop", "Rock", "Hip-hop", "Electrónica", "Reggae", "Salsa", "Bachata", "Reguetón", "Trap", "House", "Techno", "Dubstep", "Jazz", "Blues", "Country", "Folk", "Punk", "Metal", "Clásica"];
+    let songs = [];
+
+    function showSection(sectionId) {
+        document.querySelectorAll('.content').forEach(section => {
+            section.style.display = 'none';
+        });
+        const sectionToShow = document.getElementById(sectionId);
+        if (sectionToShow) {
+            sectionToShow.style.display = 'block';
+            if (sectionId === 'base-datos') {
+                updateSongCount(); // Actualiza el contador cuando se muestra la sección
+            }
+        } else {
+            console.error(`Sección ${sectionId} no encontrada`);
+        }
+    }
+
+    function toggleAdditionalFields() {
+        const fields = document.querySelector('.additional-fields');
+        fields.style.display = (fields.style.display === "none" || fields.style.display === "") ? "block" : "none";
+    }
+
+    function addGenre() {
+        let newGenre = prompt("Introduce el nuevo género:");
+        if (newGenre && !genres.includes(newGenre)) {
+            genres.push(newGenre);
+            updateGenreSelects();
+        }
+    }
+
+    function updateGenreSelects() {
+        const generoSelects = document.querySelectorAll('#genero, #genre-filter');
+        const uniqueGenres = Array.from(new Set(songs.map(song => song.genero).concat(genres)));
+        generoSelects.forEach(select => {
+            select.innerHTML = '<option value="">Seleccionar género</option>';
+            uniqueGenres.forEach(genre => {
+                const option = document.createElement('option');
+                option.value = genre;
+                option.text = genre;
+                select.add(option);
+            });
+        });
+    }
+
+    function getAudioDuration(file) {
+        return new Promise((resolve) => {
+            const audio = new Audio(file);
+            audio.addEventListener('loadedmetadata', function() {
+                const duration = Math.floor(audio.duration);
+                resolve(duration);
+            });
+        });
+    }
+
+    function formatDuration(seconds) {
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = seconds % 60;
+        return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+    }
+
+    async function saveSong(event) {
+        event.preventDefault();
+
+        const formData = new FormData(event.target);
+        const song = Object.fromEntries(formData.entries());
+
+        if (song.productor === "otro") {
+            song.productor = document.getElementById('otro-productor').value;
+        }
+
+        if (song['ruta-archivo']) {
+            song['ruta-archivo'] = normalizarRuta(song['ruta-archivo']);
+            try {
+                const durationInSeconds = await getAudioDuration(song['ruta-archivo']);
+                song.duracion = formatDuration(durationInSeconds);
+            } catch (error) {
+                console.error('Error getting audio duration:', error);
+                song.duracion = 'N/A';
+            }
+        }
+
+        addSongToTable(song);
+        songs.push(song);
+        saveSongsToLocalStorage();
+        event.target.reset();
+        toggleAdditionalFields();
+        showNotification('Canción registrada correctamente');
+    }
+
+    function addSongToTable(song) {
+        const tbody = document.getElementById('songs-table').querySelector('tbody');
+        const row = document.createElement('tr');
+
+        const normalizedPath = normalizarRuta(song['ruta-archivo']);
+
+        row.innerHTML = `
+            <td>${song.titulo || ''}</td>
+            <td>${song.artista || ''}</td>
+            <td>${song.genero || ''}</td>
+            <td>${song.duracion || ''}</td>
+            <td><span class="status-label status-${song.estado}">${song.estado || ''}</span></td>
+            <td>${song.productor || ''}</td>
+            <td><button class="btn play-btn" onclick="playSong('${normalizedPath}', '${song.titulo}', '${song.artista}', '${song.estado}')"><i class="fas fa-play"></i></button></td>
+            <td class="action-buttons">
+                <button class="btn" onclick="editSong(this)"><i class="fas fa-edit"></i></button>
+                <button class="btn delete-btn" onclick="deleteSong(this)"><i class="fas fa-trash"></i></button>
+                <button class="btn" onclick="examineFilePath(this)"><i class="fas fa-upload"></i> Examinar Ruta</button>
+            </td>
+        `;
+
+        tbody.appendChild(row);
+        updateSongCount();
+        updateGenreSelects();
+    }
+
+    function editSong(button) {
+        const row = button.closest('tr');
+        const cells = row.querySelectorAll('td');
+
+        const song = {
+            titulo: cells[0].textContent,
+            artista: cells[1].textContent,
+            genero: cells[2].textContent,
+            duracion: cells[3].textContent,
+            estado: cells[4].querySelector('.status-label').textContent,
+            productor: cells[5].textContent,
+            'ruta-archivo': cells[6].querySelector('.play-btn').getAttribute('onclick').split("'")[1],
+        };
+
+        fillEditForm(song, row);
+        showModal();
+    }
+
+    function fillEditForm(song, row) {
+        const form = document.getElementById('edit-form');
+        form.innerHTML = `
+            <div class="form-group">
+                <label for="edit-titulo">Título de la Canción</label>
+                <input type="text" id="edit-titulo" name="titulo" class="form-control" value="${song.titulo}">
+            </div>
+            <div class="form-group">
+                <label for="edit-artista">Artista(s)</label>
+                <input type="text" id="edit-artista" name="artista" class="form-control" value="${song.artista}">
+            </div>
+            <div class="form-group">
+                <label for="edit-genero">Género</label>
+                <select id="edit-genero" name="genero" class="form-control">
+                    ${genres.map(genre => `<option value="${genre}" ${genre === song.genero ? 'selected' : ''}>${genre}</option>`).join('')}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="edit-estado">Estado del Proyecto</label>
+                <select id="edit-estado" name="estado" class="form-control">
+                    <option value="BEAT" ${song.estado === 'BEAT' ? 'selected' : ''}>BEAT</option>
+                    <option value="REFERENCE" ${song.estado === 'REFERENCE' ? 'selected' : ''}>REFERENCE</option>
+                    <option value="GRABANDO" ${song.estado === 'GRABANDO' ? 'selected' : ''}>GRABANDO</option>
+                    <option value="DEMO" ${song.estado === 'DEMO' ? 'selected' : ''}>DEMO</option>
+                    <option value="MIX" ${song.estado === 'MIX' ? 'selected' : ''}>MIX</option>
+                    <option value="FINALMIX" ${song.estado === 'FINALMIX' ? 'selected' : ''}>FINALMIX</option>
+                    <option value="MASTER" ${song.estado === 'MASTER' ? 'selected' : ''}>MASTER</option>
+                    <option value="FINISHED" ${song.estado === 'FINISHED' ? 'selected' : ''}>FINISHED</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="edit-productor">Productor</label>
+                <input type="text" id="edit-productor" name="productor" class="form-control" value="${song.productor}">
+            </div>
+            <div class="form-group">
+                <label for="edit-ruta-archivo">Ruta del Archivo de Audio</label>
+                <input type="text" id="edit-ruta-archivo" name="ruta-archivo" class="form-control" value="${song['ruta-archivo']}">
+                <input type="file" id="edit-archivo" name="archivo" accept="audio/*" class="form-control" onchange="extractFilePath(this, 'edit-ruta-archivo')" style="display:none;">
+                <button type="button" class="btn" onclick="document.getElementById('edit-archivo').click()"><i class="fas fa-upload"></i> Examinar Ruta</button>
+            </div>
+            <button type="submit" class="btn"><i class="fas fa-save"></i> Guardar Cambios</button>
+        `;
+
+        form.onsubmit = async function(event) {
+            event.preventDefault();
+            await saveEditChanges(row, new FormData(form));
+            hideModal();
+        };
+    }
+
+    async function saveEditChanges(row, formData) {
+        const cells = row.querySelectorAll('td');
+        const song = Object.fromEntries(formData.entries());
+
+        if (song['ruta-archivo']) {
+            song['ruta-archivo'] = normalizarRuta(song['ruta-archivo']);
+            try {
+                const durationInSeconds = await getAudioDuration(song['ruta-archivo']);
+                song.duracion = formatDuration(durationInSeconds);
+            } catch (error) {
+                console.error('Error getting audio duration:', error);
+                song.duracion = 'N/A';
+            }
+        }
+
+        cells[0].textContent = song.titulo || '';
+        cells[1].textContent = song.artista || '';
+        cells[2].textContent = song.genero || '';
+        cells[3].textContent = song.duracion || '';
+        cells[4].innerHTML = `<span class="status-label status-${song.estado}">${song.estado || ''}</span>`;
+        cells[5].textContent = song.productor || '';
+        cells[6].querySelector('.play-btn').setAttribute('onclick', `playSong('${song['ruta-archivo']}', '${song.titulo}', '${song.artista}', '${song.estado}')`);
+
+        // Actualizar el objeto en el array 'songs'
+        const index = Array.from(row.parentElement.children).indexOf(row);
+        songs[index] = song;
+
+        saveSongsToLocalStorage();
+        showNotification('Cambios guardados correctamente');
+    }
+
+    function deleteSong(button) {
+        const row = button.closest('tr');
+        const index = Array.from(row.parentElement.children).indexOf(row);
+        songs.splice(index, 1);
+        row.remove();
+        saveSongsToLocalStorage();
+        showNotification('Canción eliminada correctamente');
+        updateSongCount();
+    }
+
+    function examineFilePath(button) {
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = 'audio/*';
+        fileInput.onchange = async function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const row = button.closest('tr');
+                const cells = row.querySelectorAll('td');
+                const audioSrc = URL.createObjectURL(file);
+                const durationInSeconds = await getAudioDuration(audioSrc);
+                const formattedDuration = formatDuration(durationInSeconds);
+
+                cells[3].textContent = formattedDuration;
+                cells[6].querySelector('.play-btn').setAttribute('onclick', `playSong('${normalizarRuta(audioSrc)}', '${cells[0].textContent}', '${cells[1].textContent}', '${cells[4].querySelector('.status-label').textContent}')`);
+
+                saveSongsToLocalStorage();
+                showNotification('Ruta del archivo seleccionada correctamente');
+            }
+        };
+        fileInput.click();
+    }
+
+    function extractFilePath(input, targetId) {
+        const file = input.files[0];
+        if (file) {
+            document.getElementById(targetId || 'ruta-archivo').value = file.name;
+        }
+    }
+
+    function showModal() {
+        const modal = document.getElementById('editModal');
+        modal.style.display = 'block';
+    }
+
+    function hideModal() {
+        const modal = document.getElementById('editModal');
+        modal.style.display = 'none';
+    }
+
+    document.querySelector('.close').onclick = function() {
+        hideModal();
+    };
+
+    window.onclick = function(event) {
+        const modal = document.getElementById('editModal');
+        if (event.target === modal) {
+            hideModal();
+        }
+    };
+
+    function filterSongs() {
+        const artistFilter = document.getElementById('artist-filter').value.toLowerCase();
+        const titleFilter = document.getElementById('title-filter').value.toLowerCase();
+        const genreFilter = document.getElementById('genre-filter').value;
+        const statusFilter = document.getElementById('status-filter').value;
+
+        const rows = document.querySelectorAll('#songs-table tbody tr');
+        let filteredCount = 0;
+        rows.forEach(row => {
+            const cells = row.querySelectorAll('td');
+            const artist = cells[1].textContent.toLowerCase();
+            const title = cells[0].textContent.toLowerCase();
+            const genre = cells[2].textContent;
+            const status = cells[4].textContent;
+
+            const matchArtist = artist.includes(artistFilter);
+            const matchTitle = title.includes(titleFilter);
+            const matchGenre = genreFilter === '' || genre === genreFilter;
+            const matchStatus = statusFilter === '' || status === statusFilter;
+
+            if (matchArtist && matchTitle && matchGenre && matchStatus) {
+                row.style.display = '';
+                filteredCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+        updateSongCount(filteredCount);
+    }
+
+    function saveSongsToLocalStorage() {
+        localStorage.setItem('songs', JSON.stringify(songs));
+    }
+
+    function loadSongsFromLocalStorage() {
+        const storedSongs = localStorage.getItem('songs');
+        if (storedSongs) {
+            songs = JSON.parse(storedSongs);
+            songs = songs.map(song => {
+                if (song['ruta-archivo']) {
+                    song['ruta-archivo'] = normalizarRuta(song['ruta-archivo']);
+                }
+                return song;
+            });
+            renderTable();
+            updateSongCount();
+        }
+    }
+
+    function showNotification(message) {
+        const notification = document.getElementById('notification');
+        notification.textContent = message;
+        notification.style.display = 'block';
+        setTimeout(() => {
+            notification.style.display = 'none';
+        }, 3000);
+    }
+
+    function saveToFile() {
+        const data = JSON.stringify(songs, null, 2);
+        const blob = new Blob([data], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'KAOTIK SONGS.json';
+        a.click();
+        URL.revokeObjectURL(url);
+        showNotification('Canciones guardadas en archivo correctamente');
+    }
+
+    function loadFromFile(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                songs = JSON.parse(e.target.result);
+                renderTable();
+                saveSongsToLocalStorage();
+                showNotification('Canciones cargadas desde archivo correctamente');
+            };
+            reader.readAsText(file);
+        }
+    }
+
+    function renderTable() {
+        const tbody = document.getElementById('songs-table').querySelector('tbody');
+        tbody.innerHTML = '';
+        songs.forEach(song => addSongToTable(song));
+    }
+
+    function updateSongCount(filteredCount = null) {
+        const count = filteredCount !== null ? filteredCount : songs.length;
+        const songCountElement = document.getElementById('song-count');
+        if (songCountElement) {
+            songCountElement.textContent = `Número de canciones registradas: ${count}`;
+            console.log('Contador actualizado:', count);
+        } else {
+            console.error('Elemento song-count no encontrado');
+        }
+    }
+
+    function sortTable(columnIndex) {
+        const table = document.getElementById('songs-table');
+        const tbody = table.querySelector('tbody');
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+
+        const sortedRows = rows.sort((a, b) => {
+            const aText = a.querySelectorAll('td')[columnIndex].textContent.toLowerCase();
+            const bText = b.querySelectorAll('td')[columnIndex].textContent.toLowerCase();
+            return aText.localeCompare(bText);
+        });
+
+        sortedRows.forEach(row => tbody.appendChild(row));
+    }
+
+    function toggleTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+    }
+
+    document.getElementById('theme-select').addEventListener('change', (e) => {
+        toggleTheme(e.target.value);
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const savedTheme = localStorage.getItem('theme') || 'default';
+        document.getElementById('theme-select').value = savedTheme;
+        toggleTheme(savedTheme);
+
+        updateGenreSelects();
+        loadSongsFromLocalStorage();
+        document.getElementById('artist-filter').addEventListener('input', filterSongs);
+        document.getElementById('title-filter').addEventListener('input', filterSongs);
+        document.getElementById('genre-filter').addEventListener('change', filterSongs);
+        document.getElementById('status-filter').addEventListener('change', filterSongs);
+    });
+
+    document.getElementById('productor').addEventListener('change', function() {
+        const otroProductorInput = document.getElementById('otro-productor');
+        if (this.value === 'otro') {
+            otroProductorInput.style.display = 'block';
+        } else {
+            otroProductorInput.style.display = 'none';
+        }
+    });
+
+    function playSong(src, title, artist, status) {
+        const player = document.getElementById('main-player');
+        const nowPlaying = document.getElementById('now-playing');
+        const playerContainer = document.getElementById('player-container');
+        player.src = src;
+        player.play();
+        nowPlaying.textContent = `Reproduciendo: ${title} - ${artist}`;
+        playerContainer.className = `status-${status}`;
+    }
+
+    function normalizarRuta(ruta) {
+        if (!ruta) return '';
+        if (ruta.startsWith('blob:') || ruta.startsWith('data:') || ruta.startsWith('file:///')) {
+            return ruta;
+        }
+        return 'file:///' + ruta.replace(/\\/g, '/');
+    }
+</script>
+
+</body>
+</html>
